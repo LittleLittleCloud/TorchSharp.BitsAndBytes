@@ -13,6 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		BranchInfo.props = BranchInfo.props
 		Dependencies.props = Dependencies.props
 		Directory.Build.props = Directory.Build.props
+		Directory.Packages.props = Directory.Packages.props
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Redist", "Redist", "{376B8812-3CD4-4983-A80B-4805886D6C1D}"
@@ -20,16 +21,32 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Redist", "Redist", "{376B88
 		Redist\build.proj = Redist\build.proj
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TorchSharp.BitsAndBytes.Tests", "TorchSharp.BitsAndBytes.Tests\TorchSharp.BitsAndBytes.Tests.csproj", "{ED3785A5-4DE0-4FB3-8DCB-5B589031F2BB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
 		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{0F73B028-9527-4400-B33A-45BE14E0A186}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0F73B028-9527-4400-B33A-45BE14E0A186}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F73B028-9527-4400-B33A-45BE14E0A186}.Debug|x64.ActiveCfg = Debug|x64
+		{0F73B028-9527-4400-B33A-45BE14E0A186}.Debug|x64.Build.0 = Debug|x64
 		{0F73B028-9527-4400-B33A-45BE14E0A186}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0F73B028-9527-4400-B33A-45BE14E0A186}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F73B028-9527-4400-B33A-45BE14E0A186}.Release|x64.ActiveCfg = Release|x64
+		{0F73B028-9527-4400-B33A-45BE14E0A186}.Release|x64.Build.0 = Release|x64
+		{ED3785A5-4DE0-4FB3-8DCB-5B589031F2BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED3785A5-4DE0-4FB3-8DCB-5B589031F2BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED3785A5-4DE0-4FB3-8DCB-5B589031F2BB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{ED3785A5-4DE0-4FB3-8DCB-5B589031F2BB}.Debug|x64.Build.0 = Debug|Any CPU
+		{ED3785A5-4DE0-4FB3-8DCB-5B589031F2BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED3785A5-4DE0-4FB3-8DCB-5B589031F2BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ED3785A5-4DE0-4FB3-8DCB-5B589031F2BB}.Release|x64.ActiveCfg = Release|Any CPU
+		{ED3785A5-4DE0-4FB3-8DCB-5B589031F2BB}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

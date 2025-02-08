@@ -3,7 +3,7 @@
   <PropertyGroup>
     <BuildArch>$(Platform)</BuildArch>
     <BuildOS>$(OS)</BuildOS>
-    <Configuration>Release</Configuration>
+    <OutputDir>$(NativeArtifactDir)\$(Configuration)</OutputDir>
   </PropertyGroup>
 
   <Target Name="CheckCMake">
@@ -21,10 +21,11 @@
     <Exec Command="cmake --build . --config $(Configuration)" />
   </Target>
 
-  <Target Name="CopyOutput" DependsOnTargets="BuildCMake">
-    <PropertyGroup>
-      <OutputDir>$(NativeArtifactDir)\$(Configuration)</OutputDir>
-    </PropertyGroup>
+  <Target Name="InvokeCudaBuild" DependsOnTargets="BuildCMake" Condition="'$(BuildCuda)' == 'true'">
+    <Exec Command="cmd /c build_cuda.cmd $(Configuration) $(CudaVersionDot)" WorkingDirectory="cuda" />
+  </Target>
+
+  <Target Name="CopyOutput" DependsOnTargets="BuildCMake;InvokeCudaBuild">
     <ItemGroup>
       <OutputFiles Include="bitsandbytes\bitsandbytes\*.dll" />
       <OutputFiles Include="bitsandbytes\bitsandbytes\*.so" />
@@ -33,6 +34,10 @@
     <OutputFiles Include="$(Configuration)\*.exp" />
     <!-- Include lib -->
     <OutputFiles Include="$(Configuration)\*.lib" />
+
+    <!-- Include cuda build -->
+    <OutputFiles Include="cuda\*.exp" />
+    <OutputFiles Include="cuda\*.lib" />
     </ItemGroup>
     <MakeDir Directories="$(OutputDir)" />
     <!-- list all dll/so/dylib under bitsandbytes\bitsandbytes -->
@@ -42,8 +47,32 @@
   <Target Name="Build" DependsOnTargets="CopyOutput" />
 
   <Target Name="Clean">
-    <RemoveDir Directories="output" />
-</Target>
+    <RemoveDir Directories="$(OutputDir)" />
+    <!-- remove CMakeFiles -->
+    <Delete Files="CMakeCache.txt" />
+    <!-- remove $(Configuration) folder -->
+    <RemoveDir Directories="$(Configuration)" />
+
+    <!-- remove bitsandbytes.dir folder -->
+    <RemoveDir Directories="bitsandbytes.dir" />
+
+    <!-- remove all vcsproj if exits -->
+    <Delete Files="ALL_BUILD*" />
+    <Delete Files="ZERO_CHECK*" />
+
+    <!-- remove .sln if exists -->
+    <Delete Files="*.sln" />
+
+    <!-- remove all cmake files -->
+    <Delete Files="CMakeLists.txt" />
+
+    <!-- remove all files under cuda except cuda_build.cmd and .gitignore -->
+    <ItemGroup>
+      <FilesToDelete Include="cuda\**\*.*" Exclude="cuda\build_cuda.cmd;cuda\.gitignore" />
+    </ItemGroup>
+
+     <Delete Files="@(FilesToDelete)" />
+  </Target>
 
   <ItemGroup Condition="'$(BuildOS)' == 'ubuntu' AND '$(BuildArch)' == 'aarch64'">
     <CMakeConfigureCommand Include="cmake -DCOMPUTE_BACKEND=cpu bitsandbytes" />

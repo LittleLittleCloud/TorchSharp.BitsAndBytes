@@ -1,0 +1,14 @@
+<Project>
+  <PropertyGroup>
+    <!-- Enable central package management, https://learn.microsoft.com/en-us/nuget/consume-packages/Central-Package-Management -->
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <ItemGroup>
+	  <PackageVersion Include="TorchSharp" Version="[0.105.0,)"/>
+	  <PackageVersion Include="TorchSharp-cuda-windows" Version="[0.105.0,)"/>
+	  <PackageVersion Include="coverlet.collector" Version="6.0.0" />
+	  <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+	  <PackageVersion Include="xunit" Version="2.5.3" />
+	  <PackageVersion Include="xunit.runner.visualstudio" Version="2.5.3" />
+  </ItemGroup>
+</Project>

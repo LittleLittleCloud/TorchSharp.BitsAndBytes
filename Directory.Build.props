@@ -4,7 +4,6 @@
     <PropertyGroup>
       <UseArtifactsOutput>true</UseArtifactsOutput>
       <ArtifactsPath>$(MSBuildThisFileDirectory)artifacts</ArtifactsPath>
-      <Platform>x64</Platform>
       <TargetOS Condition="'$(TargetOS)' == '' AND '$(OS)' == 'Windows_NT'">windows</TargetOS>
       <TargetOS Condition="'$(TargetOS)' == '' AND $([MSBuild]::IsOSPlatform('osx'))">mac</TargetOS>
       <TargetOS Condition="'$(TargetOS)' == '' AND '$(OS)' != 'Windows_NT'">linux</TargetOS>
