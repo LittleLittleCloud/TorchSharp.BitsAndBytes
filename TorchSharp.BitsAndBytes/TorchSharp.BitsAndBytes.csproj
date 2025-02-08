@@ -6,12 +6,13 @@
     <Nullable>enable</Nullable>
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
+  <Import Project="$(RepoRoot)/nuget/Package.props" />
 
 	<ItemGroup>
 		<PackageReference Include="TorchSharp" PrivateAssets="All" />
 	</ItemGroup>
 	
-  <Target Name="BuildBitsAndBytesNative" BeforeTargets="BeforeBuild">
+  <Target Name="BuildBitsAndBytesNative" BeforeTargets="BeforeBuild" Condition="'$(SkipBuildNative)' == 'False'">
     <MSBuild Projects="..\Redist\build.proj" Targets="Build" />
   </Target>
 

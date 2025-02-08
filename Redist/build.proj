@@ -2,8 +2,9 @@
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), Directory.Build.props))\Directory.Build.props" />
   <PropertyGroup>
     <BuildArch>$(Platform)</BuildArch>
-    <BuildOS>$(OS)</BuildOS>
+    <BuildOS>$(TargetOS)</BuildOS>
     <OutputDir>$(NativeArtifactDir)\$(Configuration)</OutputDir>
+    <Configuration>$(Configuration)</Configuration>
   </PropertyGroup>
 
   <Target Name="CheckCMake">
@@ -13,27 +14,24 @@
     <Error Condition="'$(CMakeExitCode)' != '0'" Text="CMake is not installed or not found in PATH." />
   </Target>
 
-  <Target Name="ConfigureCMake" DependsOnTargets="CheckCMake">
-    <Exec Command="@(CMakeConfigureCommand)" />
+
+  <Target Name="InvokeCPUBuild" DependsOnTargets="CheckCMake">
+    <Exec Command="cmd /c build_cpu.cmd $(Configuration) $(BuildArch) $(BuildOS)" WorkingDirectory="cpu" />
   </Target>
 
-  <Target Name="BuildCMake" DependsOnTargets="ConfigureCMake">
-    <Exec Command="cmake --build . --config $(Configuration)" />
+  <Target Name="InvokeCudaBuild" DependsOnTargets="CheckCMake" Condition="'$(BuildCuda)' == 'true'">
+    <Exec Command="cmd /c build_cuda.cmd release $(CudaVersionDot)" WorkingDirectory="cuda" />
   </Target>
 
-  <Target Name="InvokeCudaBuild" DependsOnTargets="BuildCMake" Condition="'$(BuildCuda)' == 'true'">
-    <Exec Command="cmd /c build_cuda.cmd $(Configuration) $(CudaVersionDot)" WorkingDirectory="cuda" />
-  </Target>
-
-  <Target Name="CopyOutput" DependsOnTargets="BuildCMake;InvokeCudaBuild">
+  <Target Name="CopyOutput" DependsOnTargets="InvokeCPUBuild;InvokeCudaBuild">
     <ItemGroup>
       <OutputFiles Include="bitsandbytes\bitsandbytes\*.dll" />
       <OutputFiles Include="bitsandbytes\bitsandbytes\*.so" />
       <OutputFiles Include="bitsandbytes\bitsandbytes\*.dylib" />
       <!-- Include exp -->
-    <OutputFiles Include="$(Configuration)\*.exp" />
+    <OutputFiles Include="cpu\**\*.exp" />
     <!-- Include lib -->
-    <OutputFiles Include="$(Configuration)\*.lib" />
+    <OutputFiles Include="cpu\**\*.lib" />
 
     <!-- Include cuda build -->
     <OutputFiles Include="cuda\*.exp" />
@@ -48,40 +46,12 @@
 
   <Target Name="Clean">
     <RemoveDir Directories="$(OutputDir)" />
-    <!-- remove CMakeFiles -->
-    <Delete Files="CMakeCache.txt" />
-    <!-- remove $(Configuration) folder -->
-    <RemoveDir Directories="$(Configuration)" />
-
-    <!-- remove bitsandbytes.dir folder -->
-    <RemoveDir Directories="bitsandbytes.dir" />
-
-    <!-- remove all vcsproj if exits -->
-    <Delete Files="ALL_BUILD*" />
-    <Delete Files="ZERO_CHECK*" />
-
-    <!-- remove .sln if exists -->
-    <Delete Files="*.sln" />
-
-    <!-- remove all cmake files -->
-    <Delete Files="CMakeLists.txt" />
-
-    <!-- remove all files under cuda except cuda_build.cmd and .gitignore -->
     <ItemGroup>
-      <FilesToDelete Include="cuda\**\*.*" Exclude="cuda\build_cuda.cmd;cuda\.gitignore" />
+      <FilesToDelete Include="cuda\**\*.*" Exclude="cuda\build_cuda.cmd;cuda\build_cuda.sh;\cuda\.gitignore" />
+      <FilesToDelete Include="cpu\**\*.*" Exclude="cpu\build_cpu.cmd;cpu\build_cpu.sh;\cpu\.gitignore" />
+      <FilesToDelete Include="bitsandbytes\bitsandbytes\*.dll" />
     </ItemGroup>
 
      <Delete Files="@(FilesToDelete)" />
   </Target>
-
-  <ItemGroup Condition="'$(BuildOS)' == 'ubuntu' AND '$(BuildArch)' == 'aarch64'">
-    <CMakeConfigureCommand Include="cmake -DCOMPUTE_BACKEND=cpu bitsandbytes" />
-  </ItemGroup>
-    <ItemGroup Condition="'$(BuildOS)' == 'macos' AND '$(BuildArch)' == 'aarch64'">
-        <CMakeConfigureCommand Include="cmake -DCMAKE_OSX_ARCHITECTURES=arm64 -DCOMPUTE_BACKEND=cpu bitsandbytes" />
-    </ItemGroup>
-    
-  <ItemGroup Condition="'$(BuildOS)' != 'ubuntu' OR '$(BuildArch)' != 'aarch64'">
-    <CMakeConfigureCommand Include="cmake -DCOMPUTE_BACKEND=cpu bitsandbytes" />
-  </ItemGroup>
 </Project>

@@ -3,6 +3,8 @@ setlocal enabledelayedexpansion
 
 REM Get configuration arugment from build.proj
 set "configuration=%1"
+set "cuda_version=%2"
+set "build_os=%3"
 
 REM Use the configuration argument to determine the build OS and architecture
 echo Building for configuration %configuration%

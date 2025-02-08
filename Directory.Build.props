@@ -1,7 +1,10 @@
 <Project>
     <Import Project="Dependencies.props" />
+    <Import Project="BranchInfo.props" />
 
     <PropertyGroup>
+      <NoWarn>$(NoWarn);CS1591</NoWarn>
+      <RepoRoot>$(MSBuildThisFileDirectory)</RepoRoot>
       <UseArtifactsOutput>true</UseArtifactsOutput>
       <ArtifactsPath>$(MSBuildThisFileDirectory)artifacts</ArtifactsPath>
       <TargetOS Condition="'$(TargetOS)' == '' AND '$(OS)' == 'Windows_NT'">windows</TargetOS>
@@ -15,5 +18,6 @@
       <PackageRid Condition="'$(TargetOS)' == 'mac'">osx</PackageRid>
       <PackageRid>$(PackageRid)-$(Platform)</PackageRid>
       <NativeArtifactDir>$(ArtifactsPath)/native/$(PackageRid)</NativeArtifactDir>
+		<SolutionDir>$(MSBuildThisDirectory)</SolutionDir>
     </PropertyGroup>
 </Project>

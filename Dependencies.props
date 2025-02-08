@@ -5,6 +5,7 @@
     <LibTorchVersion>2.5.1</LibTorchVersion>
     <CudaVersionDot>12.1</CudaVersionDot>
     <CudaVersionNoDot>121</CudaVersionNoDot>
+    <BuildCuda>true</BuildCuda>
     <CudaPath>$(CUDA_PATH_V12_1)</CudaPath>
     <BitsAndBytesVersion>0.42.0</BitsAndBytesVersion>
     <BitsAndBytesCommitHash>0c7b3b3</BitsAndBytesCommitHash>
