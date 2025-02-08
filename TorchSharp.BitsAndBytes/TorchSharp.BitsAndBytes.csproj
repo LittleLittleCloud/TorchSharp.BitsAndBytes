@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <Target Name="BuildBitsAndBytesNative" BeforeTargets="BeforeBuild">
+    <MSBuild Projects="..\Redist\build.proj" Targets="Build" />
+  </Target>
+
+  <Target Name="CleanBitsAndBytesNative" BeforeTargets="Clean">
+    <MSBuild Projects="..\Redist\build.proj" Targets="Clean" />
+  </Target>
+
+  <ItemGroup>
+    <None Include="$(NativeArtifactDir)\$(Configuration)\*.*">
+      <Link>$(PackageRid)\%(Filename)%(Extension)</Link>
+      <Pack>True</Pack>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		<PackagePath>runtimes\$(PackageRid)\native\%(Filename)%(Extension)</PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>

@@ -23,7 +23,7 @@
 
   <Target Name="CopyOutput" DependsOnTargets="BuildCMake">
     <PropertyGroup>
-      <OutputDir>output\$(BuildOS)-$(Configuration)-$(BuildArch)</OutputDir>
+      <OutputDir>$(NativeArtifactDir)\$(Configuration)</OutputDir>
     </PropertyGroup>
     <ItemGroup>
       <OutputFiles Include="bitsandbytes\bitsandbytes\*.dll" />

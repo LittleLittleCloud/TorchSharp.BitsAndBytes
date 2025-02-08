@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TorchSharp.BitsAndBytes", "Torchsharp.BitsAndBytes\TorchSharp.BitsAndBytes.csproj", "{0F73B028-9527-4400-B33A-45BE14E0A186}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5883F1D7-DE24-40D6-812E-16E861C08597}"
+	ProjectSection(SolutionItems) = preProject
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		.gitmodules = .gitmodules
+		BranchInfo.props = BranchInfo.props
+		Dependencies.props = Dependencies.props
+		Directory.Build.props = Directory.Build.props
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Redist", "Redist", "{376B8812-3CD4-4983-A80B-4805886D6C1D}"
+	ProjectSection(SolutionItems) = preProject
+		Redist\build.proj = Redist\build.proj
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0F73B028-9527-4400-B33A-45BE14E0A186}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F73B028-9527-4400-B33A-45BE14E0A186}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F73B028-9527-4400-B33A-45BE14E0A186}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F73B028-9527-4400-B33A-45BE14E0A186}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

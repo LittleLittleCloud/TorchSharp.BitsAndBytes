@@ -6,8 +6,8 @@
     <CudaVersionDot>12.1</CudaVersionDot>
     <CudaVersionNoDot>121</CudaVersionNoDot>
     <CudaPath>$(CUDA_PATH_V12_1)</CudaPath>
-    <FlashAttentionVersion>2.5.5</FlashAttentionVersion>
-    <FlashAttentionCommitHash>87a1277653fc55cd615f5341255e00c69d5c00a1</FlashAttentionCommitHash>
+    <BitsAndBytesVersion>0.42.0</BitsAndBytesVersion>
+    <BitsAndBytesCommitHash>0c7b3b3</BitsAndBytesCommitHash>
   </PropertyGroup>
 
 </Project>
