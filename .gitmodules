@@ -1,0 +1,3 @@
+[submodule "Redist/bitsandbytes"]
+	path = Redist/bitsandbytes
+	url = https://github.com/bitsandbytes-foundation/bitsandbytes.git
