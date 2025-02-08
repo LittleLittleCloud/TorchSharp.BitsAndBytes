@@ -1,0 +1,129 @@
+name: Build Torchsharp.BitsAndBytes
+
+on:
+  push: {}
+  pull_request:
+    branches: [main]
+  workflow_dispatch: {} # Allow manual trigger
+  workflow_call: {} # Allow triggering from other worfkflows
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ##
+  # This job matrix builds the non-CUDA versions of the libraries for all supported platforms.
+  ##
+  build-shared-libs-cpu:
+    strategy:
+      matrix:
+        os: [windows-latest]
+        arch: [x64]
+    runs-on: ${{ matrix.os }} # One day, we could run them on native agents. Azure supports this now but it's planned only for Q3 2023 for hosted agents
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup MSVC
+        if: startsWith(matrix.os, 'windows')
+        uses: ilammy/msvc-dev-cmd@v1.13.0 # to use cl
+      - name: Setup Dotnet
+        uses: actions/setup-dotnet@v4
+      - name: Build
+        run: dotnet build -c Release -p:BuildCuda=false
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: shared_library_${{ matrix.os }}_${{ matrix.arch }}
+          path: artifacts/native/*
+          retention-days: 7
+  ##
+  # This job matrix builds the CUDA versions of the libraries for platforms that support CUDA (Linux x64/aarch64 + Windows x64)
+  ##
+  build-shared-libs-cuda:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest]
+        arch: [x86_64]
+        cuda_version:
+          [12.1]
+          #["11.7.1", "11.8.0", "12.0.1", "12.1.1", "12.2.2", "12.3.2", "12.4.1", "12.5.1", "12.6.2"]
+        exclude:
+          - os: windows-latest # This probably requires arm64 Windows agents
+            arch: aarch64
+          - os: ubuntu-latest # Temporary. Takes too long, not ready yet.
+            arch: aarch64
+    runs-on: ${{ matrix.os }} # One day, we could run them on native agents. Azure supports this now but it's planned only for Q3 2023 for hosted agents
+    steps:
+      - uses: actions/checkout@v4
+        # Linux: We use Docker to build cross platform Cuda (aarch64 is built in emulation)
+      - name: Set up Docker multiarch
+        if: startsWith(matrix.os, 'ubuntu')
+        uses: docker/setup-qemu-action@v2
+        # Windows: We install Cuda on the agent (slow)
+      - uses: Jimver/cuda-toolkit@v0.2.19
+        if: startsWith(matrix.os, 'windows')
+        id: cuda-toolkit
+        with:
+          cuda: ${{ matrix.cuda_version }}
+          method: "network"
+          sub-packages: '["nvcc","cudart","cusparse","cublas","thrust","nvrtc_dev","cublas_dev","cusparse_dev"]'
+          linux-local-args: '["--toolkit"]'
+          use-github-cache: false
+      - name: Setup MSVC
+        if: startsWith(matrix.os, 'windows')
+        uses: ilammy/msvc-dev-cmd@v1.13.0 # to use cl
+      - name: Build with CUDA
+        run: dotnet build -c Release -p:BuildCuda=true -p:CudaVersion=${{ matrix.cuda_version }}
+        env:
+          build_os: ${{ matrix.os }}
+          build_arch: ${{ matrix.arch }}
+          cuda_version: ${{ matrix.cuda_version }}
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: shared_library_cuda_${{ matrix.os }}_${{ matrix.arch }}_${{ matrix.cuda_version }}
+          path: artifacts/native/*
+          retention-days: 7
+
+  build-package:
+    needs:
+      - build-shared-libs-cpu
+      - build-shared-libs-cuda
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+        # The specific Python version is irrelevant in this context as we are only packaging non-C extension
+        # code. This ensures compatibility across Python versions, including Python 3.8, as compatibility is
+        # dictated by the packaged code itself, not the Python version used for packaging.
+        python-version: ["3.10"]
+        arch: [x86_64]
+        exclude:
+          - os: windows-latest # This probably requires arm64 Windows agents
+            arch: aarch64
+          - os: ubuntu-latest # Temporary. Takes too long, not ready yet.
+            arch: aarch64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+          pattern: "shared_library*_${{ matrix.os }}_${{ matrix.arch }}*"
+          path: artifacts/native/
+      - name: Setup Dotnet
+        uses: actions/setup-dotnet@v4
+      - name: Build
+        run: dotnet build -c Release -p:BuildCuda=false -p:SkipBuildNative=true
+      - name: Test
+        run: dotnet test -c Release --no-build
+      - name: Pack
+        run: dotnet pack -c Release --no-build
+      - name: Upload NuGet package
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget_package_${{ matrix.os }}_${{ matrix.arch }}
+          when: matrix.os == 'windows-latest'
+          path: artifacts/package/**/*.nupkg,artifacts/package/**/*.snupkg
+        
