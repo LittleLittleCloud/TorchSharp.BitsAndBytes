@@ -1,0 +1,58 @@
+<Project  DefaultTargets="Build">
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), Directory.Build.props))\Directory.Build.props" />
+  <PropertyGroup>
+    <BuildArch>$(Platform)</BuildArch>
+    <BuildOS>$(OS)</BuildOS>
+    <Configuration>Release</Configuration>
+  </PropertyGroup>
+
+  <Target Name="CheckCMake">
+    <Exec Command="cmake --version" ContinueOnError="true">
+      <Output TaskParameter="ExitCode" PropertyName="CMakeExitCode" />
+    </Exec>
+    <Error Condition="'$(CMakeExitCode)' != '0'" Text="CMake is not installed or not found in PATH." />
+  </Target>
+
+  <Target Name="ConfigureCMake" DependsOnTargets="CheckCMake">
+    <Exec Command="@(CMakeConfigureCommand)" />
+  </Target>
+
+  <Target Name="BuildCMake" DependsOnTargets="ConfigureCMake">
+    <Exec Command="cmake --build . --config $(Configuration)" />
+  </Target>
+
+  <Target Name="CopyOutput" DependsOnTargets="BuildCMake">
+    <PropertyGroup>
+      <OutputDir>output\$(BuildOS)-$(Configuration)-$(BuildArch)</OutputDir>
+    </PropertyGroup>
+    <ItemGroup>
+      <OutputFiles Include="bitsandbytes\bitsandbytes\*.dll" />
+      <OutputFiles Include="bitsandbytes\bitsandbytes\*.so" />
+      <OutputFiles Include="bitsandbytes\bitsandbytes\*.dylib" />
+      <!-- Include exp -->
+    <OutputFiles Include="$(Configuration)\*.exp" />
+    <!-- Include lib -->
+    <OutputFiles Include="$(Configuration)\*.lib" />
+    </ItemGroup>
+    <MakeDir Directories="$(OutputDir)" />
+    <!-- list all dll/so/dylib under bitsandbytes\bitsandbytes -->
+    <Copy SourceFiles="@(OutputFiles)" DestinationFolder="$(OutputDir)" />
+  </Target>
+
+  <Target Name="Build" DependsOnTargets="CopyOutput" />
+
+  <Target Name="Clean">
+    <RemoveDir Directories="output" />
+</Target>
+
+  <ItemGroup Condition="'$(BuildOS)' == 'ubuntu' AND '$(BuildArch)' == 'aarch64'">
+    <CMakeConfigureCommand Include="cmake -DCOMPUTE_BACKEND=cpu bitsandbytes" />
+  </ItemGroup>
+    <ItemGroup Condition="'$(BuildOS)' == 'macos' AND '$(BuildArch)' == 'aarch64'">
+        <CMakeConfigureCommand Include="cmake -DCMAKE_OSX_ARCHITECTURES=arm64 -DCOMPUTE_BACKEND=cpu bitsandbytes" />
+    </ItemGroup>
+    
+  <ItemGroup Condition="'$(BuildOS)' != 'ubuntu' OR '$(BuildArch)' != 'aarch64'">
+    <CMakeConfigureCommand Include="cmake -DCOMPUTE_BACKEND=cpu bitsandbytes" />
+  </ItemGroup>
+</Project>

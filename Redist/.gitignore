@@ -1,0 +1,11 @@
+CMakeFiles
+CMakeCache.txt
+CMakeScripts
+cmake_install.cmake
+ZERO_CHECK*
+ALL_BUILD*
+bitsandbytes.sln
+bitsandbytes.vcxproj
+bitsandbytes.vcxproj.filters
+bitsandbytes.dir
+output
