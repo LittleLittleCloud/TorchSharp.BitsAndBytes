@@ -119,7 +119,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           merge-multiple: true
-          pattern: "shared_library*_${{ matrix.os }}_${{ matrix.arch }}*"
           path: artifacts/native/
       - name: Setup Dotnet
         uses: actions/setup-dotnet@v4

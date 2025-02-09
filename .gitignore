@@ -405,4 +405,5 @@ FodyWeavers.xsd
 *.dll
 *.exp
 *.lib
+*.pdb
 *.ninja*

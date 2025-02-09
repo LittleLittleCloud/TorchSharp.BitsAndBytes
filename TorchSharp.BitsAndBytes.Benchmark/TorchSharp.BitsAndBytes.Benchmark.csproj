@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Torchsharp.BitsAndBytes\TorchSharp.BitsAndBytes.csproj" />
+	<PackageReference Include="TorchSharp-cuda-windows" Condition="'$(OS)' == 'Windows_NT'" />
+	<PackageReference Include="TorchSharp-cuda-linux" Condition="'$(OS)' == 'Linux'" />
+	<PackageReference Include="TorchSharp-cpu" Condition="'$(OS)' == 'OSX'" />
+  </ItemGroup>
+
+</Project>
