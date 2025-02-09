@@ -132,6 +132,8 @@ jobs:
         run: dotnet build -c Release -p:BuildCuda=false -p:SkipBuildNative=true
       - name: Test
         run: dotnet test -c Release --no-build
+        env:
+          DisableCudaTest: 'true'
       - name: Pack
         run: dotnet pack -c Release --no-build
       - name: Upload NuGet package

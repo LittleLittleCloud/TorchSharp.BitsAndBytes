@@ -13,7 +13,7 @@ public class BitsAndBytes4BitTests
         this.output = output;
     }
 
-    [Theory]
+    [CudaTheory]
     [InlineData(ScalarType.BFloat16, "fp4", 64)]
     [InlineData(ScalarType.BFloat16, "nf4", 64)]
     [InlineData(ScalarType.BFloat16, "fp4", 128)]
@@ -69,7 +69,7 @@ public class BitsAndBytes4BitTests
         Assert.True(avg.First() <= 0.2);
     }
 
-    [Theory]
+    [CudaTheory]
     [InlineData(ScalarType.Float32, "fp4", 64, 1024)]
     [InlineData(ScalarType.Float32, "nf4", 64, 1024)]
     [InlineData(ScalarType.Float16, "fp4", 64, 1024)]
@@ -102,7 +102,7 @@ public class BitsAndBytes4BitTests
         Assert.True(avg.First() <= 1);
     }
 
-    [Theory]
+    [CudaTheory]
     [InlineData(ScalarType.Float32, "fp4", 128, 128)]
     [InlineData(ScalarType.Float32, "nf4", 128, 128)]
     [InlineData(ScalarType.Float16, "fp4", 128, 128)]
@@ -135,7 +135,7 @@ public class BitsAndBytes4BitTests
         Assert.True(avg.First() == 0);
     }
 
-    [Theory]
+    [CudaTheory]
     [InlineData(ScalarType.Float32, "fp4", 128, 128)]
     [InlineData(ScalarType.Float32, "nf4", 128, 128)]
     [InlineData(ScalarType.Float16, "fp4", 128, 128)]
@@ -152,13 +152,20 @@ public class BitsAndBytes4BitTests
         // quantize b
         (var quantizedTensor, var absMax, var _, var n) = BitsAndByteUtils.Quantize4Bit(b, quantizedDType, blockSize);
 
+        Tensor outTensor = null;
         sw.Start();
-        var outTensor = BitsAndByteUtils.Gemv4Bit(a, quantizedTensor.T, b.shape, absMax, blockSize, quantizedDType);
+        for (int i = 0; i < 1000; i++)
+        {
+            outTensor = BitsAndByteUtils.Gemv4Bit(a, quantizedTensor.T, b.shape, absMax, blockSize, quantizedDType);
+        }
         sw.Stop();
         output.WriteLine($"{dtype}-{quantizedDType}-{dim} Time taken for 4-bit GEMV: {sw.ElapsedMilliseconds} ms");
-        sw.Reset();
-        sw.Start();
-        var outBaseline = torch.matmul(a, b.t());
+        Tensor outBaseline = null;
+        sw.Restart();
+        for(int i = 0; i < 1000; i++)
+        {
+            outBaseline = torch.matmul(a, b.t());
+        }
         sw.Stop();
 
         output.WriteLine($"{dtype}-{quantizedDType}-{dim} Time taken for baseline GEMV: {sw.ElapsedMilliseconds} ms");
@@ -167,5 +174,4 @@ public class BitsAndBytes4BitTests
         Assert.Equal(1, avg.Count);
         Assert.True(avg.First() == 0);
     }
-
 }

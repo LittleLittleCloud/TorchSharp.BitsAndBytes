@@ -23,14 +23,12 @@ public class CudaBenchmark : IDisposable
         b = torch.rand(new long[] { dim * 4, dim }, dtype: ScalarType.Float32).cuda();
     }
 
-    private torch.Tensor a;
     private torch.Tensor quantizedTensor;
     private torch.Tensor absMax;
 
     [GlobalSetup]
     public void Setup()
     {
-        a = torch.rand(new long[] { 1, dim }, dtype: ScalarType.Float32).cuda();
         b = torch.rand(new long[] { dim, dim }, dtype: ScalarType.Float32).cuda();
         (quantizedTensor, absMax, _, _) = BitsAndByteUtils.Quantize4Bit(b, "fp4", blockSize);
     }
@@ -51,19 +49,20 @@ public class CudaBenchmark : IDisposable
     [Benchmark]
     public void GEMV_4Bit_FP4()
     {
-        var result = BitsAndByteUtils.Gemv4Bit(a, quantizedTensor, b.shape, absMax, blockSize, quantizedDType);
+        using var input = torch.rand(new long[] { 1, dim }, dtype: ScalarType.Float32).cuda();
+        using var result = BitsAndByteUtils.Gemv4Bit(input, quantizedTensor, b.shape, absMax, blockSize, quantizedDType);
     }
 
     [Benchmark]
     public void GEMV_FP32()
     {
-        var result = torch.mm(a, b);
+        using var input = torch.rand(new long[] { 1, dim }, dtype: ScalarType.Float32).cuda();
+        using var result = torch.matmul(input, b.T);
     }
 
     public void Dispose()
     {
         a1.Dispose();
         b.Dispose();
-        a.Dispose();
     }
 }

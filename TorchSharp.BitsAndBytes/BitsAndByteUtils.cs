@@ -9,6 +9,7 @@ namespace TorchSharp.BitsAndBytes;
 
 public class BitsAndByteUtils
 {
+    private static readonly Lazy<Dictionary<(string, string, int), Tensor>> _4bitTypeCache = new Lazy<Dictionary<(string, string, int), Tensor>>(); 
     public static (
             Tensor quantizedTensor,
             Tensor absMax,
@@ -198,6 +199,10 @@ public class BitsAndByteUtils
 
     public static Tensor Get4BitType(string typename, string device = "cuda", int blocksize = 64)
     {
+        if (_4bitTypeCache.Value.TryGetValue((typename, device, blocksize), out var cachedTensor))
+        {
+            return cachedTensor;
+        }
         float[] data = [];
 
         if (typename == "nf4")
@@ -270,6 +275,7 @@ public class BitsAndByteUtils
             throw new Exception("Tensor does not have 16 elements.");
         }
 
+        _4bitTypeCache.Value[(typename, device, blocksize)] = tensor;
         return tensor;
     }
 
@@ -281,20 +287,21 @@ public class BitsAndByteUtils
         int blockSize,
         string quantizedDType) // quantized data type, must be one of "fp4", "nf4"
     {
-        if (input.numel() != input.shape[^1])
+        var inputShape = input.IntShape();
+        if (input.numel() != inputShape[^1])
         {
             throw new ArgumentException("'Dimensions of A are invalid. Must be a vector with the leading dimensions of \"1\", e.g. [1, 1, 2048]'");
         }
-        var batch = (int)input.shape[0];
+        var batch = inputShape[0];
         var m = (int)originalWeightShape[0];
         var k = (int)originalWeightShape[1];
         var lda = (int)originalWeightShape[0];
         var ldc = (int)originalWeightShape[0];
-        var ldb = (int)(input.shape[^1] + 1) / 2;
+        var ldb = (inputShape[^1] + 1) / 2;
         Tensor output;
         if (input.shape.Length == 3)
         {
-            output = torch.zeros([batch, input.shape[1], originalWeightShape[0]], dtype: input.dtype).cuda();
+            output = torch.zeros([batch, inputShape[1], originalWeightShape[0]], dtype: input.dtype).cuda();
         }
         else
         {
