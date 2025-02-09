@@ -65,6 +65,8 @@ jobs:
           submodules: true
           fetch-depth: 0
         # Linux: We use Docker to build cross platform Cuda (aarch64 is built in emulation)
+      - name: Setup Dotnet
+        uses: actions/setup-dotnet@v4
       - name: Set up Docker multiarch
         if: startsWith(matrix.os, 'ubuntu')
         uses: docker/setup-qemu-action@v2
