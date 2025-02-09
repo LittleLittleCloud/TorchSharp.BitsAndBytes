@@ -147,13 +147,17 @@ jobs:
         with:
           name: nuget_package_release
           when: matrix.os == 'windows-latest'
-          path: artifacts/package/release/**/*.nupkg,artifact/package/release/**/*.snupkg
+          path: |
+            artifacts/package/release/**/*.nupkg,
+            artifacts/package/release/**/*.snupkg
       - name: Upload Nightly Package
         uses: actions/upload-artifact@v4
         with:
           name: nuget_package_nightly
           when: matrix.os == 'windows-latest'
-          path: artifacts/package/nightly/**/*.nupkg,artifact/package/nightly/**/*.snupkg
+          path: |
+            artifacts/package/nightly/**/*.nupkg,
+            artifacts/package/nightly/**/*.snupkg
 
   publish-package:
     needs: build-package
