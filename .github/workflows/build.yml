@@ -142,6 +142,8 @@ jobs:
         run: dotnet pack -c Release --no-build -o artifacts/package/release
       - name: Pack Nightly
         run: dotnet pack -c Release --no-build -p:VersionSuffix=${{ github.run_id }} -o artifacts/package/nightly
+      - name: List artifacts
+        run: ls -R artifacts/package/
       - name: Upload Release Package
         uses: actions/upload-artifact@v4
         when: matrix.os == 'windows-latest'
