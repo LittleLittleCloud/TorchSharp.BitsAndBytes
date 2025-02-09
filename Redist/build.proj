@@ -21,7 +21,7 @@
       <BuildScript Condition="'$(OS)' != 'Windows_NT'">build_cpu.sh</BuildScript>
     </PropertyGroup>
     <Exec Command="cmd /c $(BuildScript) $(Configuration) $(BuildArch) $(BuildOS)" WorkingDirectory="cpu" Condition="'$(OS)' == 'Windows_NT'" />
-    <Exec Command="sh $(BuildScript) $(Configuration) $(BuildArch) $(BuildOS)" WorkingDirectory="cpu" Condition="'$(OS)' != 'Windows_NT'" />
+    <Exec Command="bash $(BuildScript) $(Configuration) $(BuildArch) $(BuildOS)" WorkingDirectory="cpu" Condition="'$(OS)' != 'Windows_NT'" />
   </Target>
 
   <Target Name="InvokeCudaBuild" DependsOnTargets="CheckCMake" Condition="'$(BuildCuda)' == 'true'">
