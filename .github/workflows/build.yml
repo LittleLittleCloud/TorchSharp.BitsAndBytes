@@ -146,18 +146,18 @@ jobs:
         run: ls -R artifacts/package/
       - name: Upload Release Package
         uses: actions/upload-artifact@v4
-        if: matrix.os == 'windows-latest'
+        if: matrix.os == 'ubuntu-latest'
         with:
           name: nuget_package_release
           path: |
             artifacts/package/release/*,
       - name: Upload Nightly Package
-        if: matrix.os == 'windows-latest'
+        if: matrix.os == 'ubuntu-latest'
         uses: actions/upload-artifact@v4
         with:
           name: nuget_package_nightly
           path: |
-            artifacts/package/nightly/*,
+            artifacts/package/release/*,
 
   publish-package:
     needs: build-package
