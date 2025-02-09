@@ -30,7 +30,7 @@
       <CudaBuildScript Condition="'$(OS)' != 'Windows_NT'">build_cuda.sh</CudaBuildScript>
     </PropertyGroup>
     <Exec Command="cmd /c $(CudaBuildScript) release $(CudaVersionDot) $(BuildOS)  $(BuildArch)" WorkingDirectory="cuda" Condition="'$(OS)' == 'Windows_NT'" />
-    <Exec Command="sh $(CudaBuildScript) release $(CudaVersionDot) $(BuildOS)  $(BuildArch)" WorkingDirectory="cuda" Condition="'$(OS)' != 'Windows_NT'" />
+    <Exec Command="bash $(CudaBuildScript) release $(CudaVersionDot) $(BuildOS)  $(BuildArch)" WorkingDirectory="cuda" Condition="'$(OS)' != 'Windows_NT'" />
   </Target>
 
   <Target Name="CopyOutput" DependsOnTargets="InvokeCPUBuild;InvokeCudaBuild">
