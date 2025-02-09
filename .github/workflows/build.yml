@@ -18,8 +18,15 @@ jobs:
   build-shared-libs-cpu:
     strategy:
       matrix:
-        os: [windows-latest]
-        arch: [x64]
+        os: [windows-latest, ubuntu-latest, macos-latest]
+        arch: [x64, arm64]
+        exclude:
+          - os: windows-latest # This probably requires arm64 Windows agents
+            arch: arm64
+          - os: ubuntu-latest
+            arch: arm64
+          - os: macos-latest
+            arch: x64 # Doesn't support x64 chips for macOS anymore
     runs-on: ${{ matrix.os }} # One day, we could run them on native agents. Azure supports this now but it's planned only for Q3 2023 for hosted agents
     steps:
       - uses: actions/checkout@v4
@@ -46,16 +53,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest]
-        arch: [x86_64]
+        os: [windows-latest, ubuntu-latest]
+        arch: [x64]
         cuda_version:
           [12.1.1]
           #["11.7.1", "11.8.0", "12.0.1", "12.1.1", "12.2.2", "12.3.2", "12.4.1", "12.5.1", "12.6.2"]
-        exclude:
-          - os: windows-latest # This probably requires arm64 Windows agents
-            arch: aarch64
-          - os: ubuntu-latest # Temporary. Takes too long, not ready yet.
-            arch: aarch64
     runs-on: ${{ matrix.os }} # One day, we could run them on native agents. Azure supports this now but it's planned only for Q3 2023 for hosted agents
     steps:
       - uses: actions/checkout@v4
@@ -103,7 +105,7 @@ jobs:
         # code. This ensures compatibility across Python versions, including Python 3.8, as compatibility is
         # dictated by the packaged code itself, not the Python version used for packaging.
         python-version: ["3.10"]
-        arch: [x86_64]
+        arch: [x64]
         exclude:
           - os: windows-latest # This probably requires arm64 Windows agents
             arch: aarch64
@@ -120,6 +122,8 @@ jobs:
         with:
           merge-multiple: true
           path: artifacts/native/
+      - name: List artifacts
+        run: ls -R artifacts/native/
       - name: Setup Dotnet
         uses: actions/setup-dotnet@v4
       - name: Build
