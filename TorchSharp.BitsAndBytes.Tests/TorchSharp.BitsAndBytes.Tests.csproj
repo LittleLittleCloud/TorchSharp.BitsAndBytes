@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Torchsharp.BitsAndBytes\TorchSharp.BitsAndBytes.csproj" />
+    <ProjectReference Include="..\TorchSharp.BitsAndBytes\TorchSharp.BitsAndBytes.csproj" />
   </ItemGroup>
 
   <ItemGroup>

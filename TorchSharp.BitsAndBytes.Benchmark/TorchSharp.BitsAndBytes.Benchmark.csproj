@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Torchsharp.BitsAndBytes\TorchSharp.BitsAndBytes.csproj" />
+    <ProjectReference Include="..\TorchSharp.BitsAndBytes\TorchSharp.BitsAndBytes.csproj" />
 	<PackageReference Include="TorchSharp-cuda-windows" Condition="'$(OS)' == 'Windows_NT'" />
 	<PackageReference Include="TorchSharp-cuda-linux" Condition="'$(OS)' == 'Linux'" />
 	<PackageReference Include="TorchSharp-cpu" Condition="'$(OS)' == 'OSX'" />
