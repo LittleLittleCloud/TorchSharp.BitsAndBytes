@@ -14,7 +14,9 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="xunit" />
     <PackageReference Include="xunit.runner.visualstudio" />
-	<PackageReference Include="TorchSharp-cuda-windows" PrivateAssets="All" />
+    <PackageReference Include="TorchSharp-cuda-windows" Condition="'$(OS)' == 'Windows_NT'" />
+    <PackageReference Include="TorchSharp-cuda-linux" Condition="'$(OS)' == 'Linux'" />
+    <PackageReference Include="TorchSharp-cpu" Condition="'$(OS)' == 'OSX'" />
   </ItemGroup>
 
   <ItemGroup>

@@ -23,6 +23,9 @@ jobs:
     runs-on: ${{ matrix.os }} # One day, we could run them on native agents. Azure supports this now but it's planned only for Q3 2023 for hosted agents
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
       - name: Setup MSVC
         if: startsWith(matrix.os, 'windows')
         uses: ilammy/msvc-dev-cmd@v1.13.0 # to use cl
@@ -56,6 +59,9 @@ jobs:
     runs-on: ${{ matrix.os }} # One day, we could run them on native agents. Azure supports this now but it's planned only for Q3 2023 for hosted agents
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
         # Linux: We use Docker to build cross platform Cuda (aarch64 is built in emulation)
       - name: Set up Docker multiarch
         if: startsWith(matrix.os, 'ubuntu')
@@ -106,6 +112,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:

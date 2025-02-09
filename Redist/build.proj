@@ -1,4 +1,4 @@
-<Project  DefaultTargets="Build">
+<Project DefaultTargets="Build">
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), Directory.Build.props))\Directory.Build.props" />
   <PropertyGroup>
     <BuildArch>$(Platform)</BuildArch>
@@ -14,13 +14,22 @@
     <Error Condition="'$(CMakeExitCode)' != '0'" Text="CMake is not installed or not found in PATH." />
   </Target>
 
-
   <Target Name="InvokeCPUBuild" DependsOnTargets="CheckCMake">
-    <Exec Command="cmd /c build_cpu.cmd $(Configuration) $(BuildArch) $(BuildOS)" WorkingDirectory="cpu" />
+    <PropertyGroup>
+      <BuildScript Condition="'$(OS)' == 'Windows_NT'">build_cpu.cmd</BuildScript>
+      <BuildScript Condition="'$(OS)' != 'Windows_NT'">build_cpu.sh</BuildScript>
+    </PropertyGroup>
+    <Exec Command="cmd /c $(BuildScript) $(Configuration) $(BuildArch) $(BuildOS)" WorkingDirectory="cpu" Condition="'$(OS)' == 'Windows_NT'" />
+    <Exec Command="sh $(BuildScript) $(Configuration) $(BuildArch) $(BuildOS)" WorkingDirectory="cpu" Condition="'$(OS)' != 'Windows_NT'" />
   </Target>
 
   <Target Name="InvokeCudaBuild" DependsOnTargets="CheckCMake" Condition="'$(BuildCuda)' == 'true'">
-    <Exec Command="cmd /c build_cuda.cmd release $(CudaVersionDot)" WorkingDirectory="cuda" />
+    <PropertyGroup>
+      <CudaBuildScript Condition="'$(OS)' == 'Windows_NT'">build_cuda.cmd</CudaBuildScript>
+      <CudaBuildScript Condition="'$(OS)' != 'Windows_NT'">build_cuda.sh</CudaBuildScript>
+    </PropertyGroup>
+    <Exec Command="cmd /c $(CudaBuildScript) release $(CudaVersionDot) $(BuildOS)  $(BuildArch)" WorkingDirectory="cuda" Condition="'$(OS)' == 'Windows_NT'" />
+    <Exec Command="sh $(CudaBuildScript) release $(CudaVersionDot) $(BuildOS)  $(BuildArch)" WorkingDirectory="cuda" Condition="'$(OS)' != 'Windows_NT'" />
   </Target>
 
   <Target Name="CopyOutput" DependsOnTargets="InvokeCPUBuild;InvokeCudaBuild">
@@ -29,13 +38,12 @@
       <OutputFiles Include="bitsandbytes\bitsandbytes\*.so" />
       <OutputFiles Include="bitsandbytes\bitsandbytes\*.dylib" />
       <!-- Include exp -->
-    <OutputFiles Include="cpu\**\*.exp" />
-    <!-- Include lib -->
-    <OutputFiles Include="cpu\**\*.lib" />
-
-    <!-- Include cuda build -->
-    <OutputFiles Include="cuda\*.exp" />
-    <OutputFiles Include="cuda\*.lib" />
+      <OutputFiles Include="cpu\**\*.exp" />
+      <!-- Include lib -->
+      <OutputFiles Include="cpu\**\*.lib" />
+      <!-- Include cuda build -->
+      <OutputFiles Include="cuda\*.exp" />
+      <OutputFiles Include="cuda\*.lib" />
     </ItemGroup>
     <MakeDir Directories="$(OutputDir)" />
     <!-- list all dll/so/dylib under bitsandbytes\bitsandbytes -->
@@ -51,7 +59,6 @@
       <FilesToDelete Include="cpu\**\*.*" Exclude="cpu\build_cpu.cmd;cpu\build_cpu.sh;\cpu\.gitignore" />
       <FilesToDelete Include="bitsandbytes\bitsandbytes\*.dll" />
     </ItemGroup>
-
-     <Delete Files="@(FilesToDelete)" />
+    <Delete Files="@(FilesToDelete)" />
   </Target>
 </Project>

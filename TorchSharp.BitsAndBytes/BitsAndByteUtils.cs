@@ -198,7 +198,7 @@ public class BitsAndByteUtils
 
     public static Tensor Get4BitType(string typename, string device = "cuda", int blocksize = 64)
     {
-        float[] data = null;
+        float[] data = [];
 
         if (typename == "nf4")
         {

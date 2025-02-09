@@ -2,10 +2,13 @@
   <PropertyGroup>
     <!-- Enable central package management, https://learn.microsoft.com/en-us/nuget/consume-packages/Central-Package-Management -->
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <TorchSharpVersion>0.105.0</TorchSharpVersion>]
   </PropertyGroup>
   <ItemGroup>
-	  <PackageVersion Include="TorchSharp" Version="[0.105.0,)"/>
-	  <PackageVersion Include="TorchSharp-cuda-windows" Version="[0.105.0,)"/>
+	  <PackageVersion Include="TorchSharp" Version="[$(TorchSharpVersion),)"/>
+	  <PackageVersion Include="TorchSharp-cuda-windows" Version="[$(TorchSharpVersion),)"/>
+    <PackageVersion Include="TorchSharp-cuda-linux" Version="[$(TorchSharpVersion),)"/>
+    <PackageVersion Include="TorchSharp-cpu" Version="[$(TorchSharpVersion),)"/>
 	  <PackageVersion Include="coverlet.collector" Version="6.0.0" />
 	  <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
 	  <PackageVersion Include="xunit" Version="2.5.3" />

@@ -1,7 +1,11 @@
 #!/bin/bash
 declare build_arch
-declare build_os
-declare cuda_version
+
+# Get configuration argument from build.proj
+configuration=$1
+cuda_version=$2
+build_os=$3
+build_arch=$4
 
 set -xeuo pipefail
 build_capability="50;52;60;61;70;75;80;86;89;90;100;120"
@@ -19,11 +23,11 @@ if [ "${build_os:0:6}" == ubuntu ]; then
     docker run --platform "linux/$build_arch" -i -w /src -v "$PWD:/src" "$image" sh -c \
         "apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends cmake \
-    && cmake -DPTXAS_VERBOSE=1 -DCOMPUTE_BACKEND=cuda -DCOMPUTE_CAPABILITY=\"${build_capability}\" . \
-    && cmake --build ."
+    && cmake -DPTXAS_VERBOSE=1 -DCOMPUTE_BACKEND=cuda -DCOMPUTE_CAPABILITY=\"${build_capability}\" ../bitsandbytes  \
+    && cmake --build . --config Release"
 else
     pip install cmake==3.28.3
-    cmake -G Ninja -DCOMPUTE_BACKEND=cuda -DCOMPUTE_CAPABILITY="${build_capability}" -DCMAKE_BUILD_TYPE=Release -S .
+    cmake -G Ninja -DCOMPUTE_BACKEND=cuda -DCOMPUTE_CAPABILITY="${build_capability}" -DCMAKE_BUILD_TYPE=Release -S bitsandbytes
     cmake --build . --config Release
 fi
 
