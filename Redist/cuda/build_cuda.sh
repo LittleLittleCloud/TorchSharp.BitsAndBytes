@@ -20,7 +20,7 @@ remove_for_lt_12_7=";100;120"
 if [ "${build_os:0:5}" == linux ]; then
     image=nvidia/cuda:${cuda_version}-devel-ubuntu22.04
     echo "Using image $image"
-    docker run --platform "linux/$build_arch" -i -w /src -v "$PWD:/src" "$image" sh -c \
+    docker run --platform "linux/$build_arch" -i -w /src -v "$PWD:/src" -v "$PWD/../bitsandbytes:/bitsandbytes" "$image" sh -c \
         "apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends cmake \
     && cmake -DPTXAS_VERBOSE=1 -DCOMPUTE_BACKEND=cuda -DCOMPUTE_CAPABILITY=\"${build_capability}\" ../bitsandbytes  \
