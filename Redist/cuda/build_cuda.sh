@@ -17,7 +17,7 @@ remove_for_lt_12_7=";100;120"
 [[ "${cuda_version}" < 12.7 ]] && build_capability=$(sed 's|'"$remove_for_lt_12_7"'||g; s|'"${remove_for_lt_12_7#;}"';||g' <<< "$build_capability")
 [[ "${build_os}" = windows-* ]] && python3 -m pip install ninja
 
-if [ "${build_os:0:6}" == ubuntu ]; then
+if [ "${build_os:0:5}" == linux ]; then
     image=nvidia/cuda:${cuda_version}-devel-ubuntu22.04
     echo "Using image $image"
     docker run --platform "linux/$build_arch" -i -w /src -v "$PWD:/src" "$image" sh -c \
@@ -27,7 +27,7 @@ if [ "${build_os:0:6}" == ubuntu ]; then
     && cmake --build . --config Release"
 else
     pip install cmake==3.28.3
-    cmake -G Ninja -DCOMPUTE_BACKEND=cuda -DCOMPUTE_CAPABILITY="${build_capability}" -DCMAKE_BUILD_TYPE=Release -S bitsandbytes
+    cmake -G Ninja -DCOMPUTE_BACKEND=cuda -DCOMPUTE_CAPABILITY="${build_capability}" -DCMAKE_BUILD_TYPE=Release -S ../bitsandbytes
     cmake --build . --config Release
 fi
 
