@@ -144,17 +144,17 @@ jobs:
         run: dotnet pack -c Release --no-build -p:VersionSuffix=${{ github.run_id }} -o artifacts/package/nightly
       - name: Upload Release Package
         uses: actions/upload-artifact@v4
+        when: matrix.os == 'windows-latest'
         with:
           name: nuget_package_release
-          when: matrix.os == 'windows-latest'
           path: |
             artifacts/package/release/**/*.nupkg,
             artifacts/package/release/**/*.snupkg
       - name: Upload Nightly Package
         uses: actions/upload-artifact@v4
+        when: matrix.os == 'windows-latest'
         with:
           name: nuget_package_nightly
-          when: matrix.os == 'windows-latest'
           path: |
             artifacts/package/nightly/**/*.nupkg,
             artifacts/package/nightly/**/*.snupkg
