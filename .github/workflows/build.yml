@@ -7,6 +7,10 @@ on:
   workflow_dispatch: {} # Allow manual trigger
   workflow_call: {} # Allow triggering from other worfkflows
 
+permissions:
+  packages: write
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -134,12 +138,41 @@ jobs:
         run: dotnet test -c Release --no-build
         env:
           DisableCudaTest: 'true'
-      - name: Pack
-        run: dotnet pack -c Release --no-build
-      - name: Upload NuGet package
+      - name: Pack Release
+        run: dotnet pack -c Release --no-build -o artifacts/package/release
+      - name: Pack Nightly
+        run: dotnet pack -c Release --no-build -p:VersionSuffix=${{ github.run_id }} -o artifacts/package/nightly
+      - name: List artifacts
+        run: ls -R artifacts/package/
+      - name: Upload Release Package
+        uses: actions/upload-artifact@v4
+        if: matrix.os == 'ubuntu-latest'
+        with:
+          name: nuget_package_release
+          path: |
+            artifacts/package/release/**/*.nupkg
+            artifacts/package/release/**/*.snupkg
+      - name: Upload Nightly Package
+        if: matrix.os == 'ubuntu-latest'
         uses: actions/upload-artifact@v4
         with:
-          name: nuget_package_${{ matrix.os }}_${{ matrix.arch }}
-          when: matrix.os == 'windows-latest'
-          path: artifacts/package/**/*.nupkg,artifacts/package/**/*.snupkg
-        
+          name: nuget_package_nightly
+          path: |
+            artifacts/package/release/**/*.nupkg
+            artifacts/package/release/**/*.snupkg
+
+  publish-package:
+    needs: build-package
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup Dotnet
+        uses: actions/setup-dotnet@v4
+      - name: download nightly package
+        uses: actions/download-artifact@v2
+        with:
+          name: nuget_package_nightly
+      - name: Publish nightly to GitHub Packages
+        run: dotnet nuget push artifacts/package/nightly/*.nupkg --source "github" --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
