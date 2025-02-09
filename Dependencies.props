@@ -3,7 +3,7 @@
   <!-- Other/Non-Core Product Dependencies -->
   <PropertyGroup>
     <LibTorchVersion>2.5.1</LibTorchVersion>
-    <CudaVersionDot>12.1</CudaVersionDot>
+    <CudaVersionDot>12.1.1</CudaVersionDot>
     <CudaVersionNoDot>121</CudaVersionNoDot>
     <BuildCuda>true</BuildCuda>
 	  <BuildCuda Condition="$([MSBuild]::IsOSPlatform('OSX'))">false</BuildCuda>
