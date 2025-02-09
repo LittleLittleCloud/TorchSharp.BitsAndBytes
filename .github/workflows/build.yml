@@ -150,14 +150,16 @@ jobs:
         with:
           name: nuget_package_release
           path: |
-            artifacts/package/release/*,
+            artifacts/package/release/**/*.nupkg
+            artifacts/package/release/**/*.snupkg
       - name: Upload Nightly Package
         if: matrix.os == 'ubuntu-latest'
         uses: actions/upload-artifact@v4
         with:
           name: nuget_package_nightly
           path: |
-            artifacts/package/release/*,
+            artifacts/package/release/**/*.nupkg
+            artifacts/package/release/**/*.snupkg
 
   publish-package:
     needs: build-package

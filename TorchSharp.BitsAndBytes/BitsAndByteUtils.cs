@@ -276,6 +276,7 @@ public class BitsAndByteUtils
         }
 
         _4bitTypeCache.Value[(typename, device, blocksize)] = tensor;
+        tensor.DetachFromDisposeScope();
         return tensor;
     }
 
@@ -293,25 +294,26 @@ public class BitsAndByteUtils
             throw new ArgumentException("'Dimensions of A are invalid. Must be a vector with the leading dimensions of \"1\", e.g. [1, 1, 2048]'");
         }
         var batch = inputShape[0];
+        var inputDType = input.dtype;
         var m = (int)originalWeightShape[0];
         var k = (int)originalWeightShape[1];
         var lda = (int)originalWeightShape[0];
         var ldc = (int)originalWeightShape[0];
         var ldb = (inputShape[^1] + 1) / 2;
         Tensor output;
-        if (input.shape.Length == 3)
+        if (inputShape.Length == 3)
         {
-            output = torch.zeros([batch, inputShape[1], originalWeightShape[0]], dtype: input.dtype).cuda();
+            output = torch.zeros([batch, inputShape[1], originalWeightShape[0]], dtype: inputDType).cuda();
         }
         else
         {
-            output = torch.zeros([batch, originalWeightShape[0]], dtype: input.dtype).cuda();
+            output = torch.zeros([batch, originalWeightShape[0]], dtype: inputDType).cuda();
         }
 
         // quantize weight
         var code = Get4BitType(quantizedDType, "cuda", blockSize);
 
-        if (input.dtype == ScalarType.Float32)
+        if (inputDType == ScalarType.Float32)
         { 
             BitsAndBytesCudaNative.cgemm_4bit_inference_naive_fp32(
                 m: m,
@@ -328,7 +330,7 @@ public class BitsAndByteUtils
                 blocksize: blockSize,
                 stream: IntPtr.Zero);
         }
-        else if (input.dtype == ScalarType.Float16)
+        else if (inputDType == ScalarType.Float16)
         {
             BitsAndBytesCudaNative.cgemm_4bit_inference_naive_fp16(
                 m: m,
@@ -345,7 +347,7 @@ public class BitsAndByteUtils
                 blocksize: blockSize,
                 stream: IntPtr.Zero);
         }
-        else if (input.dtype == ScalarType.BFloat16)
+        else if (inputDType == ScalarType.BFloat16)
         {
             BitsAndBytesCudaNative.cgemm_4bit_inference_naive_bf16(
                 m: m,
