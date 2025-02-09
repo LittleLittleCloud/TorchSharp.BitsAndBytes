@@ -2,7 +2,7 @@
   <PropertyGroup>
     <!-- Enable central package management, https://learn.microsoft.com/en-us/nuget/consume-packages/Central-Package-Management -->
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-    <TorchSharpVersion>0.105.0</TorchSharpVersion>]
+    <TorchSharpVersion>0.105.0</TorchSharpVersion>
   </PropertyGroup>
   <ItemGroup>
 	  <PackageVersion Include="TorchSharp" Version="[$(TorchSharpVersion),)"/>
