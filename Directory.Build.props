@@ -3,6 +3,7 @@
     <Import Project="BranchInfo.props" />
 
     <PropertyGroup>
+      <SkipBuildNative>false</SkipBuildNative>
       <NoWarn>$(NoWarn);CS1591</NoWarn>
       <RepoRoot>$(MSBuildThisFileDirectory)</RepoRoot>
       <UseArtifactsOutput>true</UseArtifactsOutput>
