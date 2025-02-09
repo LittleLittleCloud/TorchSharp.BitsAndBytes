@@ -1,7 +1,8 @@
 <Project DefaultTargets="Build">
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), Directory.Build.props))\Directory.Build.props" />
   <PropertyGroup>
-    <BuildArch>$(Platform)</BuildArch>
+  <!-- macos: aaarch64, linux: x86_64, windows: x64 -->
+    <BuildArch>$(NativePlatform)</BuildArch>
     <BuildOS>$(TargetOS)</BuildOS>
     <OutputDir>$(NativeArtifactDir)\$(Configuration)</OutputDir>
     <Configuration>$(Configuration)</Configuration>

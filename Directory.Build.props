@@ -17,7 +17,11 @@
       <PackageRid Condition="'$(TargetOS)' == 'windows'">win</PackageRid>
       <PackageRid Condition="'$(TargetOS)' == 'linux'">linux</PackageRid>
       <PackageRid Condition="'$(TargetOS)' == 'mac'">osx</PackageRid>
-      <PackageRid>$(PackageRid)-$(Platform)</PackageRid>
+      <NativePlatform Condition="'$(TargetOS)' == 'windows'">x64</NativePlatform>
+      <NativePlatform Condition="'$(TargetOS)' == 'linux'">x64</NativePlatform>
+      <NativePlatform Condition="'$(TargetOS)' == 'mac'">arm64</NativePlatform>
+
+      <PackageRid>$(PackageRid)-$(NativePlatform)</PackageRid>
       <NativeArtifactDir>$(ArtifactsPath)/native/$(PackageRid)</NativeArtifactDir>
 		<SolutionDir>$(MSBuildThisDirectory)</SolutionDir>
     </PropertyGroup>
