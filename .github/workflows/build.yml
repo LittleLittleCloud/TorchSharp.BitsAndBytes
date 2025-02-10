@@ -171,7 +171,7 @@ jobs:
       - name: Setup Dotnet
         uses: actions/setup-dotnet@v4
       - name: download nightly package
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: nuget_package_nightly
       - name: Publish nightly to GitHub Packages
