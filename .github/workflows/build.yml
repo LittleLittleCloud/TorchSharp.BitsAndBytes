@@ -175,4 +175,4 @@ jobs:
         with:
           name: nuget_package_nightly
       - name: Publish nightly to GitHub Packages
-        run: dotnet nuget push artifacts/package/nightly/*.nupkg --source "github" --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
+        run: dotnet nuget push artifacts/package/nightly/*.nupkg --source "https://nuget.pkg.github.com/LittleLittleCloud/index.json" --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
