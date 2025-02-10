@@ -174,5 +174,8 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: nuget_package_nightly
+          path: artifacts/package/nightly
+      - name: List artifacts
+        run: ls -R artifacts/
       - name: Publish nightly to GitHub Packages
         run: dotnet nuget push artifacts/package/nightly/*.nupkg --source "https://nuget.pkg.github.com/LittleLittleCloud/index.json" --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
