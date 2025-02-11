@@ -24,6 +24,8 @@ For more examples, please refer to the [Benchmark](#Benchmark) section.
 
 BenchmarkDotNet v0.14.0, Windows 11 (10.0.26100.3037)
 Intel Core i9-14900K, 1 CPU, 32 logical and 24 physical cores
+Memory: 64GB
+GPU: RTX4090
 .NET SDK 9.0.102
   [Host]     : .NET 8.0.12 (8.0.1224.60305), X64 RyuJIT AVX2
   DefaultJob : .NET 8.0.12 (8.0.1224.60305), X64 RyuJIT AVX2
