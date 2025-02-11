@@ -32,34 +32,34 @@ public class CudaBenchmark
         (quantizedTensor, absMax, _, _) = BitsAndByteUtils.Quantize4Bit(b, "fp4", blockSize);
     }
 
-    //[Benchmark]
+    [Benchmark]
     public void Quantize4Bit()
     {
         var result = BitsAndByteUtils.Quantize4Bit(a1, quantizedDType, blockSize);
     }
 
-    //[Benchmark]
+    [Benchmark]
     public void Dequantize4Bit()
     {
         var (quantizedTensor, absMax, _, n) = BitsAndByteUtils.Quantize4Bit(a1, quantizedDType, blockSize);
         var result = BitsAndByteUtils.Dequantize4Bit(quantizedTensor, absMax, ScalarType.Float32, quantizedDType, n, a1.shape, blockSize);
     }
 
-    //[Benchmark]
+    [Benchmark]
     public void GEMV_4Bit_FP4()
     {
         using var input = torch.rand(new long[] { 1, dim }, dtype: ScalarType.Float32).cuda();
         using var result = BitsAndByteUtils.Gemv4Bit(input, quantizedTensor, [4*dim, dim], absMax, blockSize, quantizedDType);
     }
 
-    //[Benchmark]
+    [Benchmark]
     public void GEMV_4Bit_NF4()
     {
         using var input = torch.rand(new long[] { 1, dim }, dtype: ScalarType.Float32).cuda();
         using var result = BitsAndByteUtils.Gemv4Bit(input, quantizedTensor, [4 * dim, dim], absMax, blockSize, "nf4");
     }
 
-    //[Benchmark]
+    [Benchmark]
     public void GEMV_FP32()
     {
         using var input = torch.rand([1, dim], dtype: ScalarType.Float32).cuda();
@@ -74,7 +74,7 @@ public class CudaBenchmark
         using var result = Function.Int8GEMM(input, weight);
     }
 
-    //[Benchmark]
+    [Benchmark]
     public void GEMM_FP32()
     {
         using var input = torch.randint(-128, 127, new long[] { 1, dim }, dtype: ScalarType.Float32).cuda();

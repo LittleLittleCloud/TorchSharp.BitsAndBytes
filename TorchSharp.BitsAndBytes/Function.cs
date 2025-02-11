@@ -9,6 +9,7 @@ namespace TorchSharp.BitsAndBytes;
 
 public class Function
 {
+    private static readonly Lazy<Dictionary<int, IntPtr>> _context = new(() => new Dictionary<int, IntPtr>());
     /// <summary>
     /// Integer General Matrix Multiplication (IGEMM) for 8-bit integer data types.
     /// </summary>
@@ -24,7 +25,7 @@ public class Function
         bool transposeInput = false)
     {
         var sout = BitsAndByteUtils.CheckMatmul(input, weight, transposeWeight, transposeInput);
-        var @out = torch.zeros((long[])[.. sout], dtype: torch.int32, device: input.device);
+        var result = torch.zeros((long[])[.. sout], dtype: torch.int32, device: input.device);
         if (input.shape.Length == 3 && weight.shape.Length == 3)
         {
             if (input.shape[0] == weight.shape[0] && input.shape[2] == weight.shape[1])
@@ -130,16 +131,25 @@ public class Function
             ldc = m;
         }
 
-        var context = BitsAndBytesCudaNative.get_context();
+        IntPtr context;
+        if (_context.Value.TryGetValue(input.device_index, out var ctx))
+        {
+            context = ctx;
+        }
+        else
+        {
+            context = BitsAndBytesCudaNative.get_context();
+            _context.Value[input.device_index] = context;
+        }
+
         var A = LibTorchNativeMethod.THSStorage_data_ptr(input.Handle);
         var B = LibTorchNativeMethod.THSStorage_data_ptr(weight.Handle);
-        var C = LibTorchNativeMethod.THSStorage_data_ptr(@out.Handle);
-
+        var C = LibTorchNativeMethod.THSStorage_data_ptr(result.Handle);
         BitsAndBytesCudaNative.cigemm(
             context: context,
             transposeA: transposeWeight, // cuBLAS expects column major, but PyTorch is row major
             transposeB: transposeInput, // So we have to transpose A and B
-            m: m,   
+            m: m,
             n: n,
             k: k,
             A: B,   // out_T = B_T @ A_T
@@ -148,7 +158,7 @@ public class Function
             lda: lda,
             ldb: ldb,
             ldc: ldc);
+        return result;
 
-        return @out;
     }
 }
