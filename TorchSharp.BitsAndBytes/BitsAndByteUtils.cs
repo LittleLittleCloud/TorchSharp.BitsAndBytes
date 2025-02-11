@@ -195,7 +195,7 @@ public class BitsAndByteUtils
         return dequantizedTensor;
     }
 
-
+    
 
     public static Tensor Get4BitType(string typename, string device = "cuda", int blocksize = 64)
     {
@@ -420,5 +420,147 @@ public class BitsAndByteUtils
 
         data.Sort();
         return torch.tensor(data.ToArray());
+    }
+
+    public static int[] CheckMatmul(Tensor A, Tensor B, bool transposed_A, bool transposed_B, ScalarType expectedType = ScalarType.Int8)
+    {
+        if (A.dtype != expectedType || B.dtype != expectedType)
+        {
+            throw new ArgumentException($"Expected {expectedType} input tensors A and B, but got {A.dtype} and {B.dtype}");
+        }
+
+        var sA = A.IntShape();
+        var sB = B.IntShape();
+        var tA = transposed_A;
+        var tB = transposed_B;
+
+        bool correct = true;
+
+        if (sA.Length == 2 && sB.Length == 2)
+        {
+            if (!tA && !tB && A.shape[1] != B.shape[0])
+            {
+                correct = false;
+            }
+            else if (tA && !tB && A.shape[0] != B.shape[0])
+            {
+                correct = false;
+            }
+            else if (tA && tB && A.shape[0] != B.shape[1])
+            {
+                correct = false;
+            }
+            else if (!tA && tB && A.shape[1] != B.shape[1])
+            {
+                correct = false;
+            }
+        }
+        else if (sA.Length == 3 && sB.Length == 2)
+        {
+            if (!tA && !tB && A.shape[2] != B.shape[0])
+            {
+                correct = false;
+            }
+            else if (tA && !tB && A.shape[1] != B.shape[0])
+            {
+                correct = false;
+            }
+            else if (tA && tB && A.shape[1] != B.shape[1])
+            {
+                correct = false;
+            }
+            else if (!tA && tB && A.shape[2] != B.shape[1])
+            {
+                correct = false;
+            }
+        }
+        else if (sA.Length == 3 && sB.Length == 3)
+        {
+            if (!tA && !tB && A.shape[2] != B.shape[1])
+            {
+                correct = false;
+            }
+            else if (tA && !tB && A.shape[1] != B.shape[1])
+            {
+                correct = false;
+            }
+            else if (tA && tB && A.shape[1] != B.shape[2])
+            {
+                correct = false;
+            }
+            else if (!tA && tB && A.shape[2] != B.shape[2])
+            {
+                correct = false;
+            }
+        }
+
+        int[] outShape = default!;
+
+        if (sA.Length == 2 && sB.Length == 2)
+        {
+            if (!tA && !tB)
+            {
+                outShape = [sA[0], sB[1]];
+            }
+            else if (tA && tB)
+            {
+                outShape = [sA[1], sB[0]];
+            }
+            else if (tA && !tB)
+            {
+                outShape = [sA[1], sB[1]];
+            }
+            else if (!tA && tB)
+            {
+                outShape = [sA[0], sB[0]];
+            }
+        }
+        else if (sA.Length == 3 && sB.Length == 2)
+        {
+            if (!tA && !tB)
+            {
+                outShape = [sA[0], sA[1], sB[1]];
+            }
+            else if (tA && tB)
+            {
+                outShape = [sA[0], sA[2], sB[0]];
+            }
+            else if (tA && !tB)
+            {
+                outShape = [sA[0], sA[2], sB[1]];
+            }
+            else if (!tA && tB)
+            {
+                outShape = [sA[0], sA[1], sB[0]];
+            }
+        }
+        else if (sA.Length == 3 && sB.Length == 3)
+        {
+            if (!tA && !tB)
+            {
+                outShape = [sA[0], sA[1], sB[2]];
+            }
+            else if (tA && tB)
+            {
+                outShape = [sA[0], sA[2], sB[1]];
+            }
+            else if (tA && !tB)
+            {
+                outShape = [sA[0], sA[2], sB[2]];
+            }
+            else if (!tA && tB)
+            {
+                outShape = [sA[0], sA[1], sB[1]];
+            }
+        }
+
+        if (!correct)
+        {
+            throw new ArgumentException(
+                $"Tensor dimensions incorrect for matrix multiplication: A x B: {sA.ToArray()} x {sB.ToArray()} with transpose for A x B: {tA} x {tB}."
+            );
+        }
+
+        return outShape;
     }
 }

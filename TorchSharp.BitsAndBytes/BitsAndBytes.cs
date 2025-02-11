@@ -10,45 +10,6 @@ public static class BitsAndBytesCudaNative
 {
     private const string DllName = "libbitsandbytes_cuda121";
 
-    /// <summary>
-    /// Represents the CUDA __nv_bfloat16 type
-    /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    public struct NvBFloat16
-    {
-        public ushort Value;
-    }
-
-    [DllImport(DllName)]
-    public static extern void cdequantize_blockwise_fp32(
-        IntPtr code,        // float*
-        IntPtr A,          // float*
-        IntPtr absmax,     // float*
-        IntPtr output,     // unsigned char*
-        int blocksize,
-        int n,             // total size
-        IntPtr stream);
-
-    [DllImport(DllName)]
-    public static extern void cdequantize_blockwise_fp16(
-        IntPtr code,        // float*
-        IntPtr A,          // float*
-        IntPtr absmax,     // float*
-        IntPtr output,     // unsigned char*
-        int blocksize,
-        int n,             // total size
-        IntPtr stream);
-
-    [DllImport(DllName)]
-    public static extern void cdequantize_blockwise_bf16(
-        IntPtr code,        // float*
-        IntPtr A,          // float*
-        IntPtr absmax,     // float*
-        IntPtr output,     // unsigned char*
-        int blocksize,
-        int n,             // total size
-        IntPtr stream);
-
     [DllImport(DllName)]
     public static extern void cdequantize_blockwise_fp32_fp4(
         IntPtr code,        // float*
@@ -238,4 +199,25 @@ public static class BitsAndBytesCudaNative
         int size,
         IntPtr stream   // cudaStream_t
     );
+
+    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+    public static extern void cigemm(
+        IntPtr context,
+        bool transposeA,
+        bool transposeB,
+        int m,
+        int n,
+        int k,
+        IntPtr A, // input
+        IntPtr B, // weight
+        IntPtr C, // output
+        int lda,
+        int ldb,
+        int ldc);
+
+    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+    public static extern IntPtr get_context();
+
+    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+    public static extern IntPtr get_cusparse();
 }

@@ -70,6 +70,88 @@ public class BitsAndBytes4BitTests
     }
 
     [CudaTheory]
+    [InlineData(32, 1, false, false, 16)]
+    [InlineData(32, 1, false, true, 16)]
+    [InlineData(32, 1, true, false, 16)]
+    [InlineData(32, 1, true, true, 16)]
+    [InlineData(64, 1, true, true, 16)]
+    [InlineData(128, 1, true, true, 16)]
+    [InlineData(512, 1, true, true, 16)]
+    [InlineData(32, 1, true, true, 512)]
+    [InlineData(32, 16, false, false, 16)]
+    [InlineData(32, 16, false, true, 16)]
+    [InlineData(32, 8, true, false, 16)]
+    [InlineData(32, 4, true, true, 16)]
+    [InlineData(128, 32, true, true, 16)]
+    [InlineData(512, 32, true, true, 16)]
+    [InlineData(32, 4, true, true, 512)]
+    public void TestInt8GEMM(int hiddenDim, int batchDim, bool transposeInput, bool transposeWeight, int seqDim)
+    {
+        // 2-D input
+        foreach (int i in Enumerable.Range(0, 20))
+        {
+            long[] inputShape = !transposeInput ? [batchDim, hiddenDim] : [hiddenDim, batchDim];
+            var outputChannel = 32 * new Random().Next(1, 10);
+            long[] weightShape = transposeWeight ? [outputChannel, hiddenDim] : [hiddenDim, outputChannel];
+
+            using var input = torch.randint(-128, 127, inputShape, ScalarType.Int8).cuda();
+            using var weight = torch.randint(-128, 127, weightShape, ScalarType.Int8).cuda();
+            using var baseline = (transposeInput, transposeWeight) switch
+            {
+                (false, false) => torch.matmul(input.to_type(ScalarType.Float32), weight.to_type(ScalarType.Float32)),
+                (false, true) => torch.matmul(input.to_type(ScalarType.Float32), weight.to_type(ScalarType.Float32).t()),
+                (true, false) => torch.matmul(input.to_type(ScalarType.Float32).t(), weight.to_type(ScalarType.Float32)),
+                (true, true) => torch.matmul(input.to_type(ScalarType.Float32).t(), weight.to_type(ScalarType.Float32).t()),
+            };
+            using var result = (transposeInput, transposeWeight) switch
+            {
+                (false, false) => Function.Int8GEMM(input, weight),
+                (false, true) => Function.Int8GEMM(input, weight.t()),
+                (true, false) => Function.Int8GEMM(input.t(), weight),
+                (true, true) => Function.Int8GEMM(input.t(), weight.t()),
+            };
+
+            var diff = baseline - result.to_type(ScalarType.Float32);
+            var avg = diff.abs().mean().data<float>();
+
+            Assert.True(avg[0] <= 1e-5);
+        }
+
+        // 3-dim input
+        foreach (int i in Enumerable.Range(0, 20))
+        {
+            if (transposeInput)
+            {
+                // skip 3-dim input with transposeInput = true
+                continue;
+            }
+            long[] inputShape = [batchDim, seqDim, hiddenDim];
+            var outputChannel = 32 * new Random().Next(1, 10);
+            long[] weightShape = transposeWeight ? [outputChannel, hiddenDim] : [hiddenDim, outputChannel];
+
+            using var input = torch.randint(-128, 127, inputShape, ScalarType.Int8).cuda();
+            using var weight = torch.randint(-128, 127, weightShape, ScalarType.Int8).cuda();
+            using var baseline = (transposeInput, transposeWeight) switch
+            {
+                (false, false) => torch.matmul(input.to_type(ScalarType.Float32), weight.to_type(ScalarType.Float32)),
+                (false, true) => torch.matmul(input.to_type(ScalarType.Float32), weight.to_type(ScalarType.Float32).t()),
+                _ => throw new NotImplementedException()
+            };
+            using var result = (transposeInput, transposeWeight) switch
+            {
+                (false, false) => Function.Int8GEMM(input, weight),
+                (false, true) => Function.Int8GEMM(input, weight.t()),
+                _ => throw new NotImplementedException()
+            };
+
+            var diff = baseline - result.to_type(ScalarType.Float32);
+            var avg = diff.abs().mean().data<float>();
+
+            Assert.True(avg[0] <= 1e-5);
+        }
+    }
+    
+    [CudaTheory]
     [InlineData(ScalarType.Float32, "fp4", 64, 1024)]
     [InlineData(ScalarType.Float32, "nf4", 64, 1024)]
     [InlineData(ScalarType.Float16, "fp4", 64, 1024)]
@@ -173,5 +255,47 @@ public class BitsAndBytes4BitTests
         var avg = abs.to(ScalarType.Float32).abs().mean().data<float>();
         Assert.Equal(1, avg.Count);
         Assert.True(avg.First() == 0);
+    }
+
+    [Fact]
+    public void TestCheckMatmul_ValidInputs()
+    {
+        var A = torch.randint(0, 10, new long[] { 2, 3 }, ScalarType.Int8);
+        var B = torch.randint(0, 10, new long[] { 3, 2 }, ScalarType.Int8);
+
+        var result = BitsAndByteUtils.CheckMatmul(A, B, false, false, ScalarType.Int8);
+
+        Assert.Equal([2, 2], result);
+    }
+
+    [Fact]
+    public void TestCheckMatmul_InvalidInputs()
+    {
+        var A = torch.randint(0, 10, new long[] { 2, 3 }, ScalarType.Int8);
+        var B = torch.randint(0, 10, new long[] { 2, 2 }, ScalarType.Int8);
+
+        Assert.Throws<ArgumentException>(() => BitsAndByteUtils.CheckMatmul(A, B, false, false, ScalarType.Int8));
+    }
+
+    [Fact]
+    public void TestCheckMatmul_TransposedInputs()
+    {
+        var A = torch.randint(0, 10, new long[] { 3, 2 }, ScalarType.Int8);
+        var B = torch.randint(0, 10, new long[] { 3, 2 }, ScalarType.Int8);
+
+        var result = BitsAndByteUtils.CheckMatmul(A, B, true, false, ScalarType.Int8);
+
+        Assert.Equal([2, 2], result);
+    }
+
+    [Fact]
+    public void TestCheckMatmul_NullOutput()
+    {
+        var A = torch.randint(0, 10, new long[] { 2, 3 }, ScalarType.Int8);
+        var B = torch.randint(0, 10, new long[] { 3, 2 }, ScalarType.Int8);
+
+        var result = BitsAndByteUtils.CheckMatmul(A, B, false, false, ScalarType.Int8);
+
+        Assert.Equal([2, 2], result);
     }
 }
