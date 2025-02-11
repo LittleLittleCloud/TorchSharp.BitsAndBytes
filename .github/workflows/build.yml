@@ -158,8 +158,8 @@ jobs:
         with:
           name: nuget_package_nightly
           path: |
-            artifacts/package/release/**/*.nupkg
-            artifacts/package/release/**/*.snupkg
+            artifacts/package/nightly/**/*.nupkg
+            artifacts/package/nightly/**/*.snupkg
 
   publish-package:
     needs: build-package
