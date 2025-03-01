@@ -6,7 +6,7 @@
     <BuildArch Condition="'$(TargetOS)' == 'linux'">amd64</BuildArch>
     <BuildArch Condition="'$(TargetOS)' == 'mac'">aaarch64</BuildArch>
     <BuildOS>$(TargetOS)</BuildOS>
-    <OutputDir>$(NativeArtifactDir)\$(Configuration)</OutputDir>
+    <OutputDir>$(NativeArtifactDir)</OutputDir>
     <Configuration>$(Configuration)</Configuration>
   </PropertyGroup>
 

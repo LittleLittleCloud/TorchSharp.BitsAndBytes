@@ -22,7 +22,7 @@
       <NativePlatform Condition="'$(TargetOS)' == 'mac'">arm64</NativePlatform>
 
       <PackageRid>$(PackageRid)-$(NativePlatform)</PackageRid>
-      <NativeArtifactDir>$(ArtifactsPath)/native/$(PackageRid)</NativeArtifactDir>
+      <NativeArtifactDir>$(ArtifactsPath)/native/$(Configuration)/$(PackageRid)</NativeArtifactDir>
 		<SolutionDir>$(MSBuildThisDirectory)</SolutionDir>
     </PropertyGroup>
 </Project>

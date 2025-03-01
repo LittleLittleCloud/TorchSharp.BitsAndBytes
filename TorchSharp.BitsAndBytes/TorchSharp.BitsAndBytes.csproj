@@ -9,6 +9,7 @@
   <Import Project="$(RepoRoot)/nuget/Package.props" />
 
 	<ItemGroup>
+		<Compile Remove="Function/MatMul4Bit.cs" />
 		<PackageReference Include="TorchSharp" PrivateAssets="All" />
 	</ItemGroup>
 	
@@ -21,11 +22,11 @@
   </Target>
 
   <ItemGroup>
-    <None Include="$(NativeArtifactDir)\$(Configuration)\*.*">
-      <Link>runtimes\*\native\%(Filename)%(Extension)</Link>
+    <None Include="$(ArtifactsPath)\native\$(Configuration)\**\*.*">
+      <Link>runtimes\%(RecursiveDir)%(Filename)%(Extension)</Link>
       <Pack>True</Pack>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  <PackagePath>runtimes\$(PackageRid)\native\%(Filename)%(Extension)</PackagePath>
+	  <PackagePath>runtimes\%(RecursiveDir)\native\%(Filename)%(Extension)</PackagePath>
     </None>
   </ItemGroup>
 
