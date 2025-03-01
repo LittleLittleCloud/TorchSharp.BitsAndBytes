@@ -1,6 +1,14 @@
 ﻿# TorchSharp.BitsAndBytes
 The `TorchSharp.BitsAndBytes` is a C# binding library for [bitsandbytes](https://github.com/bitsandbytes-foundation/bitsandbytes) library from Huggingface. It provides 4Bit and 8Bit quantization for TorchSharp models.
 
+<div align="center">
+<p align="center">
+  
+[![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
+[![NuGet Version](https://img.shields.io/nuget/v/LittleLittleCloud.TorchSharp.BitsAndBytes?label=NuGet&labelColor=grey&color=green)](https://www.nuget.org/packages/LittleLittleCloud.TorchSharp.BitsAndBytes)
+</p>
+</div>
+
 ## Usage
 ### 4Bit Quantization && Dequantization
 >[!NOTE]
