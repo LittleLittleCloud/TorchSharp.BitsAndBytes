@@ -6,6 +6,8 @@ on:
     branches: [main]
   workflow_dispatch: {} # Allow manual trigger
   workflow_call: {} # Allow triggering from other worfkflows
+  release:
+    types: [published]
 
 permissions:
   packages: write
@@ -195,19 +197,29 @@ jobs:
 
   publish-package:
     needs: build-package
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' || github.event_name == 'release'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Setup Dotnet
         uses: actions/setup-dotnet@v4
-      - name: download nightly package
+      - name: Download nightly package
         uses: actions/download-artifact@v4
         with:
           name: nuget_package_nightly
           path: artifacts/package/nightly
+      - name: Download release package
+        if: github.event_name == 'release'
+        uses: actions/download-artifact@v4
+        with:
+          name: nuget_package_release
+          path: artifacts/package/release
       - name: List artifacts
         run: ls -R artifacts/
       - name: Publish nightly to GitHub Packages
         run: dotnet nuget push artifacts/package/nightly/*.nupkg --source "https://nuget.pkg.github.com/LittleLittleCloud/index.json" --api-key ${{ secrets.GITHUB_TOKEN }} --skip-duplicate
+      
+      - name: Publish release to NuGet
+        if: github.event_name == 'release'
+        run: dotnet nuget push artifacts/package/release/*.nupkg --source "https://api.nuget.org/v3/index.json" --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate
