@@ -26,7 +26,7 @@
       <Link>runtimes\%(RecursiveDir)%(Filename)%(Extension)</Link>
       <Pack>True</Pack>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  <PackagePath>runtimes\%(RecursiveDir)\native\%(Filename)%(Extension)</PackagePath>
+	  <PackagePath>runtimes\%(RecursiveDir)native\%(Filename)%(Extension)</PackagePath>
     </None>
   </ItemGroup>
 
