@@ -22,7 +22,7 @@
 
   <ItemGroup>
     <None Include="$(NativeArtifactDir)\$(Configuration)\*.*">
-      <Link>runtimes\$(PackageRid)\native\%(Filename)%(Extension)</Link>
+      <Link>runtimes\*\native\%(Filename)%(Extension)</Link>
       <Pack>True</Pack>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  <PackagePath>runtimes\$(PackageRid)\native\%(Filename)%(Extension)</PackagePath>
